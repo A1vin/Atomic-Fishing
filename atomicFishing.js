@@ -24,12 +24,12 @@ function atomicFishing() {
 															// activated
 
 	canvas.onmousedown = function(e) {
-		data.pinX = e.pageX - this.offsetLeft;
-		data.pinY = e.pageY - this.offsetTop;
-		if (data.pinX > data.atomChain[0].x - 10
-				&& data.pinX < data.atomChain[0].x + 10
-				&& data.pinY > data.atomChain[0].y - 10
-				&& data.pinY < data.atomChain[0].y + 10)
+		var pinX = e.pageX - this.offsetLeft;
+		var pinY = e.pageY - this.offsetTop;
+		if (pinX > data.atomChain[0].x - 10
+				&& pinX < data.atomChain[0].x + 10
+				&& pinY > data.atomChain[0].y - 10
+				&& pinY < data.atomChain[0].y + 10)
 			data.directChain = true; // if clicked in or around 'picker',
 										// control = true
 	};
@@ -69,19 +69,6 @@ function atomicFishing() {
 		return 0;
 	}
 
-	//function grabAtom() // the last atom in chain will grab a loose atom if it's close to it
-	//{
-	//	for ( var i = 0; i < data.atoms.length; i++) {
-	//		var distance = getDistance(data.atoms[i], data.atomChain[data.atomChain.length - 1]);
-	//		var limit = data.atoms[i].radius + data.atomChain[data.atomChain.length - 1].radius;
-	//		if ( distance <= limit )				
-	//		{
-	//			looseAtom = data.atoms.splice(i, 1);
-	//			data.atomChain.push( looseAtom[0] );
-	//		}
-	//	}
-	//}
-
 	function moveChain(e) {
 		// if( data.directChain )
 		// {
@@ -120,8 +107,6 @@ function atomicFishing() {
 		this.box = new Area(10, 10, 120, 120);				// Molecule-frame
 		this.running = true; 								// Game running?
 		this.directChain = false; 							// Chain being controlled?
-		this.pinX = 0; 										// mouse position X
-		this.pinY = 0; 										// mouse position Y
 		this.atomMaxRadius = 20;							// maximum radius in an atom
 		this.lazerOffsetBottom = 40; // distance between bottom and the lazer
 	} // end Data();
@@ -137,7 +122,8 @@ function atomicFishing() {
 		this.color = 'rgb(' + Math.floor(radius * 9) + ', '
 							+ Math.floor(255 - (radius * 9)) + ', '
 							+ Math.floor((255 * (radius)) % 255) + ')';
-		this.velX = 0; // velocity sideways (magnetics)
+		this.velX = 0; 										// velocity sideways (magnetics)
+		this.velY = 3; 										// velocity downwards (gravity)
 		this.falling = true; // Whether the atom is falling or not
 	} // end Atom()
 
@@ -213,7 +199,7 @@ function atomicFishing() {
 		context.fillStyle = 'rgb(0, 0, 0)';
 		context.font = "normal " + atom.radius * 1.4 + "px Verdana";
 	//	alert(atom.name[1]);
-		if (atom.name.lengt == 2) {
+		if (atom.name.length == 2) {
 			context.fillText(atom.name, atom.x - (atom.radius * 9 / 10), atom.y
 					+ (atom.radius / 2));
 		} else {
@@ -274,7 +260,7 @@ function atomicFishing() {
 			atomTubeMaxLimitY = data.atomTube.y + data.atomTube.height - data.lazerOffsetBottom - data.atomMaxRadius;
 			if (atom.y < atomTubeMaxLimitY) // if bubbling downwards
 			{
-				atom.y += 3; 				// keep bubbling
+				atom.y += atom.velY; 				// keep bubbling
 				
 				var distance = getDistance(data.atoms[i], data.atomChain[data.atomChain.length - 1]);
 				var limit = data.atoms[i].radius + data.atomChain[data.atomChain.length - 1].radius;
