@@ -4,29 +4,26 @@ function atomicFishing()
 	drawBackground( context );
 	var data = new gameData();
 	
-	gameLoop( context, data );
-	setInterval( gameLoop( context, data ), 50 );			// For each 17 ms, start up gameLoop (if finished from last time)
+	setInterval( function(){ gameLoop( context, data ); }, 50 );			// For each 17 ms, start up gameLoop (if finished from last time)
 }
 
 // 'Object' that holds the data in the game
 function gameData()
 {
-	this.atoms = [];
+	this.atoms = [ new Atom( "C", 7, 10 ) ];
 	this.atomTube = new Area( 200, 400 );
-	//this.atomTube.x = 200;
-	//this.atomTube.width = 400;
-	this.running = false;
+	this.running = true;
 }
 
 
 // 'Object' that defines an Atom
-function Atom( x, y )
+function Atom( type, x, radius )
 {
-	this.name = "C";								// name of atom (abbreviation)
+	this.name = type;								// name of atom (abbreviation)
 	this.timeCreated = new Date().getTime();		// When this atom was 'created'
-	this.radius = 15;								// radius in pixels
-	this.x = this.timeCreated % 100 + x;										// position x in space
-	this.y = this.timeCreated % 100 + y;										// position y in space
+	this.radius = radius;							// radius in pixels
+	this.x = x;										// position x in space
+	this.y = -20;										// position y in space
 }
 
 
@@ -71,15 +68,18 @@ function drawBackground( context )
 // Draw an Atom
 function drawAtom( context, data, index )
 {
-	atom = data.atoms[index];
+	var atom = data.atoms[index];
 	context.beginPath();
 	context.arc( data.atomTube.x + atom.x, atom.y, atom.radius, 0, 2*Math.PI, true );
-	context.strokeStyle = 'rgb(255, 255, 0)';
-	context.lineWidth = 10;
-	context.stroke();
+	context.fillStyle = 'rgb(255, 255, 0)';
+	context.lineWidth = 1;
+	context.fill();
+	context.fillStyle = 'rgb(0, 0, 0)';
+	context.font = "normal "+data.atoms[index].radius*1.4+"px Verdana";
+	context.fillText(atom.name, data.atomTube.x + atom.x - (atom.radius/2), atom.y+(atom.radius/2));
 }
 
-// Creates on frame
+// Create and draw a frame
 function gameLoop( context, data )
 {
 	update( context, data );
@@ -90,15 +90,26 @@ function gameLoop( context, data )
 // Update data according to last screen
 function update( context, data )
 {
-	data.atoms[data.atoms.length] = new Atom( 50, 50 );
+	for( i = 0; i < data.atoms.length; i++ )
+	{
+		data.atoms[i].y += 3;
+	}
+	timeDiff = new Date().getTime() - data.atoms[data.atoms.length - 1].timeCreated;
+	if( timeDiff > 750 )
+		data.atoms[data.atoms.length] = new Atom( String.fromCharCode(Math.floor( Math.random() * 26 ) + 65 ), Math.floor( Math.random() * data.atomTube.width ), Math.floor(Math.random()*12)+8 );
 }
 
 
 // Render a scene
 function render( context, data )
 {
-	for( i = 0; i < data.atoms.length; i++ )
+	if( data.running )
 	{
-		drawAtom( context,  data, i );
+		drawBackground( context );
+		
+		for( i = 0; i < data.atoms.length; i++ )
+		{
+			drawAtom( context,  data, i );
+		}
 	}
 }
