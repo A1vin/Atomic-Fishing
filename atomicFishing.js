@@ -256,6 +256,17 @@ function atomicFishing()
 		{
 			atom = data.atoms[i];					// find height
 			
+			if( atom.x <data.atomTube.x + atom.radius)
+			{
+				atom.x =data.atomTube.x + atom.radius;
+				atom.velX =- atom.velX;
+			}
+			if( atom.x > data.atomTube.x + data.atomTube.width - atom.radius)
+			{
+				atom.x =data.atomTube.x + data.atomTube.width - atom.radius;
+				atom.velX =- atom.velX;
+			}
+			
 			if( atom.y < HEIGHT-data.lazerOffsetBottom-20 )				// if bubbling downwards
 			{
 				atom.y += 3;						// keep bubbling
@@ -272,8 +283,8 @@ function atomicFishing()
 			atomMass = atomListMass[atomIndex]/3 + 15;
 			data.atoms[data.atoms.length] = new Atom( 			// create another atom!
 					atomName,
-					data.atomTube.x + 20 + Math.floor( Math.random() * (data.atomTube.width-40) ), 
-					-20, 
+					data.atomTube.x + atomMass + Math.floor( Math.random() * (data.atomTube.width-2*atomMass) ), 
+					-atomMass, 
 					atomMass );
 		}
 	} // end update()
