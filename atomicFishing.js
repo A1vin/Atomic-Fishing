@@ -1,6 +1,5 @@
 function atomicFishing()
 {
-
 	// constants
 	var WIDTH = 800;
 	var HEIGHT = 600;
@@ -9,18 +8,42 @@ function atomicFishing()
 	var context = canvas.getContext("2d");
 	
 	init();
-	drawBackground( context );
 	
 	var data = new Data();
 	
 	setInterval( function(){ gameLoop(); }, 50 );			// For each 17 ms, start up gameLoop (if finished from last time)
-		
+	canvas.addEventListener("mousemove", moveChain, false );// Move chain on mouse movement when control is activated
+	
+	canvas.onmousedown = function( e )
+	{
+		data.pinX = e.pageX - this.offsetLeft;
+		data.pinY = e.pageY - this.offsetTop;
+		if( data.pinX > data.atomChain[0].x - 10 && data.pinX < data.atomChain[0].x + 10 &&
+			data.pinY > data.atomChain[0].y - 10 && data.pinY < data.atomChain[0].y + 10 )
+			data.directChain = true;			// if clicked in or around 'picker', control = true
+	}
+
+	function moveChain(e)
+	{
+		if( data.directChain )
+		{
+			data.atomChain[0].x = e.pageX - this.offsetLeft;
+			data.atomChain[0].y = e.pageY - this.offsetTop;
+		}
+	}
+	
+	canvas.onmouseup = function( e )
+	{
+		data.directChain = false;
+	}
+	
 	function init()											// initialize canvas
 	{
 		canvas.width = WIDTH;
 		canvas.height = HEIGHT;
 		canvas.style.border = "5px solid black";
 		//canvas.addEventListener('mousemove', mouseMove, false);
+		drawBackground( context );
 	} // end init()
 	
 	// Draw background
@@ -34,10 +57,13 @@ function atomicFishing()
 	// 'Object' that holds the data in the game
 	function Data()
 	{
-		this.atoms = [ new Atom( "C", WIDTH/2, -20, 10 ) ];				// create array with atoms (starts with one atom in it)
-		this.moleculeBits = [ new Atom( "-", 200, 200, 10 ) ];	// collected chain starting with a collector
-		this.atomTube = new Area( 200, 0, 400, HEIGHT );	// Tube where the atoms is 'raining'
-		this.running = true;
+		this.atoms = [ new Atom( "C", WIDTH/2, -20, 10 ) ];		// create array with atoms (starts with one atom in it)
+		this.atomChain = [ new Atom( "-", WIDTH/2, 200, 10 ) ];		// collected chain starting with a collector
+		this.atomTube = new Area( 200, 0, 400, HEIGHT );		// Tube where the atoms is 'raining'
+		this.running = true;									// Game running?
+		this.directChain = false;								// Chain being controlled?
+		this.pinX = 0;											// mouse position X
+		this.pinY = 0;											// mouse position Y
 	} // end Data();
 
 	// 'Object' that defines an Atom
@@ -48,6 +74,9 @@ function atomicFishing()
 		this.y = y;									// position y in space
 		this.radius = radius;							// radius in pixels
 		this.timeCreated = new Date().getTime();		// When this atom was 'created'
+		this.color = 'rgb('+Math.floor(Math.random()*255)+', '+Math.floor(Math.random()*255)+', '+Math.floor(Math.random()*255)+')';
+		this.velX = 0;									// velocity sideways (magnetics)
+		this.falling = true;							// Whether the atom is falling or not
 	} // end Atom()
 	
 	// 'Object' that define an area
@@ -58,18 +87,36 @@ function atomicFishing()
 		this.width = width;
 		this.height = height;
 	} // end Area()
+	
+	
+	// Draw the static content
+	function drawFrame()
+	{
+		// draw lines visualizing the atomtube
+		context.beginPath();
+		context.moveTo( data.atomTube.x, data.atomTube.y );
+		context.lineTo( data.atomTube.x, data.atomTube.height );
+		context.strokeStyle = "rgb( 255, 255, 255 )";
+		context.stroke();
+		context.moveTo( data.atomTube.x + data.atomTube.width, data.atomTube.y );
+		context.lineTo( data.atomTube.x + data.atomTube.width, data.atomTube.y + data.atomTube.height );
+		context.strokeStyle = "rgb( 255, 255, 255 )";
+		context.stroke();
+		context.closePath();
+	}
 
 	// Draw an Atom
 	function drawAtom( atom )
 	{
 		context.beginPath();
-		context.arc( data.atomTube.x + atom.x, atom.y, atom.radius, 0, 2*Math.PI, true );
-		context.fillStyle = 'rgb(255, 255, 0)';
+		context.arc( atom.x, atom.y, atom.radius, 0, 2*Math.PI, true );
+		context.fillStyle = atom.color;//'rgb(255, 255, 0)';
 		context.lineWidth = 1;
 		context.fill();
 		context.fillStyle = 'rgb(0, 0, 0)';
 		context.font = "normal "+atom.radius*1.4+"px Verdana";
-		context.fillText(atom.name, data.atomTube.x + atom.x - (atom.radius/2), atom.y+(atom.radius/2));
+		context.fillText(atom.name, atom.x - (atom.radius/2), atom.y+(atom.radius/2));
+		context.closePath();
 	} // end drawAtom()
 
 	// Create and draw a frame
@@ -83,13 +130,24 @@ function atomicFishing()
 	// Update data according to last screen
 	function update()
 	{
-		for( i = 0; i < data.atoms.length; i++ )
+		for( i = 0; i < data.atoms.length; i++ )	// for every atom
 		{
-			data.atoms[i].y += 3;
+			atom = data.atoms[i];					// find height
+			
+			if( atom.y < HEIGHT-25 )						// if bubbling downwards
+			{
+				atom.y += 5;				// keep bubbling
+				gripX = data.atomChain[data.atomChain.length-1].x;
+				gripY = data.atomChain[data.atomChain.length-1].y;
+				//if( gripX > (atom.x - atom.radius) && 
+			}
+			else									// if getting close to bottom
+				data.atoms.splice( i, 1 );			// remove atom from memory
+			
 		}
 		timeDiff = new Date().getTime() - data.atoms[data.atoms.length - 1].timeCreated;
 		if( timeDiff > 750 )
-			data.atoms[data.atoms.length] = new Atom( String.fromCharCode(Math.floor( Math.random() * 26 ) + 65 ), Math.floor( Math.random() * data.atomTube.width ), -20, Math.floor(Math.random()*12)+8 );
+			data.atoms[data.atoms.length] = new Atom( String.fromCharCode(Math.floor( Math.random() * 26 ) + 65 ), data.atomTube.x + 20 + Math.floor( Math.random() * (data.atomTube.width-40) ), -20, Math.floor(Math.random()*12)+8 );
 	} // end update()
 
 
@@ -99,6 +157,7 @@ function atomicFishing()
 		if( data.running )
 		{
 			drawBackground();
+			drawFrame();
 			
 			for( i = 0; i < data.atoms.length; i++ )
 			{
@@ -106,9 +165,9 @@ function atomicFishing()
 			}
 			
 			// draw the collected chain
-			for( i = 0; i < data.moleculeBits.length; i++ )
+			for( i = 0; i < data.atomChain.length; i++ )
 			{
-				drawAtom( data.moleculeBits[i] );
+				drawAtom( data.atomChain[i] );
 			}
 		}
 	} // end render()
