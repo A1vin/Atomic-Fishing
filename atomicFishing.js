@@ -37,7 +37,57 @@ function atomicFishing()
 			data.pinY > data.atomChain[0].y - 10 && data.pinY < data.atomChain[0].y + 10 )
 			data.directChain = true;			// if clicked in or around 'picker', control = true
 	};
+	
+	function getDistance(atomOne, atomTwo)
+	{
+		var xDist, yDist;
+		xDist = (atomOne.x - atomTwo.x);
+		if (xDist < 0){
+				xDist *= -1;
+			}
+		yDist = (atomOne.y - atomTwo.y);
+		if (yDist < 0){
+				yDist *= -1;
+			}
+		
+		return (Math.sqrt(Math.pow(xDist, 2) * Math.pow(yDist, 2))); 
+	}
+	
+	function collisionCheck(currentAtom)
+	{
+		for (var i = 0; i < data.atomChain.length; i++)
+		{
+			if (currentAtom != i)
+			{
+				if (getDistance(tempAtom, data.atomChain[i]) <= tempAtom.radius + data.atomChain[i].	radius)
+				return ( 1 + i);
+			}
+		}
+		
+		for (var i = 0; i < data.atoms.length; i++)
+		{
+			if ((currentAtom - data.atomChain.length) != i)
+			{
+				if (getDistance(tempAtom, data.atoms[i]) <= tempAtom.radius + data.atoms[i].radius)
+				return ( 1 + i + data.atomChain.length); 
+			}
+		}
+		
+		return 0;
+	}
 
+	function grabAtom()		// the last atom in chain will grab an atom if it's close to it
+	{
+		var grabLength = 1;
+		
+		for (var i = 0; i < data.atoms.length; i++)
+		{
+			if (getDistance(data.atoms[i], data.atomChain[data.atomChain.length]) < grabLength)
+				data.atomChain.push( data.atoms.slice(i,1) );
+		}
+	}
+	
+	
 	function moveChain(e)
 	{
 		if( data.directChain )
@@ -180,6 +230,11 @@ function atomicFishing()
 		}
 		context.closePath();
 	} // end drawAtom()
+	
+	function drawMolecule()
+	{
+		
+	}
 
 	// Create and draw a frame
 	function gameLoop()
