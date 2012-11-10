@@ -60,6 +60,7 @@ function atomicFishing()
 		this.atoms = [ new Atom( "C", WIDTH/2, -20, 10 ) ];		// create array with atoms (starts with one atom in it)
 		this.atomChain = [ new Atom( " ", WIDTH/2, 200, 10 ) ];		// collected chain starting with a collector
 		this.atomTube = new Area( 200, 0, 400, HEIGHT );		// Tube where the atoms is 'raining'
+		this.box = new Area( 10, 10, 120, 120 );
 		this.running = true;									// Game running?
 		this.directChain = false;								// Chain being controlled?
 		this.pinX = 0;											// mouse position X
@@ -107,7 +108,18 @@ function atomicFishing()
 		context.stroke();
 		context.closePath();
 		drawLaser(data.atomTube.x,data.atomTube.height-data.lazerOffsetBottom,data.atomTube.width,3);
-		
+		drawBox();
+	}
+	
+	function drawBox()
+	{
+		context.beginPath();
+		context.moveTo( data.box.x, data.box.y );
+		context.lineTo( data.box.x, data.box.y + data.box.height );
+		context.lineTo( data.box.x+data.box.width, data.box.y+data.box.height );
+		context.lineTo( data.box.x+data.box.width, data.box.y );
+		context.lineTo( data.box.x, data.box.y );
+		context.stroke();
 	}
 	
 	function drawLaser( x, y, width, numInverts )
@@ -128,6 +140,7 @@ function atomicFishing()
 		context.stroke();
 		context.quadraticCurveTo( x + ( 5 * width / 6 ), y+variance, x + ( 6 * width / 6 ), y );
 		context.stroke();
+		context.closePath();
 	} // end Area()
 		
 
