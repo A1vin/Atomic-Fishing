@@ -36,7 +36,7 @@ function atomicFishing() {
 
 	function getDistance(atomOne, atomTwo) {
 		var xDist, yDist;
-		alert(atomTwo.x);
+	//	alert(atomTwo.x);
 		xDist = (atomOne.x - atomTwo.x);
 		if (xDist < 0) {
 			xDist *= -1;
@@ -216,8 +216,9 @@ function atomicFishing() {
 		context.fill();
 		context.fillStyle = 'rgb(0, 0, 0)';
 		context.font = "normal " + atom.radius * 1.4 + "px Verdana";
-		if (atom.name.length < 2) {
-			context.fillText(atom.name, atom.x - (atom.radius * 4 / 5), atom.y
+	//	alert(atom.name[1]);
+		if (atom.name[1]) {
+			context.fillText(atom.name, atom.x - (atom.radius * 9 / 10), atom.y
 					+ (atom.radius / 2));
 		} else {
 			context.fillText(atom.name, atom.x - (atom.radius / 2), atom.y
