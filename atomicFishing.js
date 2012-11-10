@@ -58,12 +58,13 @@ function atomicFishing()
 	function Data()
 	{
 		this.atoms = [ new Atom( "C", WIDTH/2, -20, 10 ) ];		// create array with atoms (starts with one atom in it)
-		this.atomChain = [ new Atom( "-", WIDTH/2, 200, 10 ) ];		// collected chain starting with a collector
+		this.atomChain = [ new Atom( " ", WIDTH/2, 200, 10 ) ];		// collected chain starting with a collector
 		this.atomTube = new Area( 200, 0, 400, HEIGHT );		// Tube where the atoms is 'raining'
 		this.running = true;									// Game running?
 		this.directChain = false;								// Chain being controlled?
 		this.pinX = 0;											// mouse position X
 		this.pinY = 0;											// mouse position Y
+		this.lazerOffsetBottom = 40;							// distance between bottom and the lazer
 	} // end Data();
 
 	// 'Object' that defines an Atom
@@ -74,7 +75,9 @@ function atomicFishing()
 		this.y = y;									// position y in space
 		this.radius = radius;							// radius in pixels
 		this.timeCreated = new Date().getTime();		// When this atom was 'created'
-		this.color = 'rgb('+Math.floor(Math.random()*255)+', '+Math.floor(Math.random()*255)+', '+Math.floor(Math.random()*255)+')';
+		this.color = 'rgb('	+Math.floor(Math.random()*255)+', '
+							+Math.floor(Math.random()*255)+', '
+							+Math.floor(Math.random()*255)+')';
 		this.velX = 0;									// velocity sideways (magnetics)
 		this.falling = true;							// Whether the atom is falling or not
 	} // end Atom()
@@ -103,7 +106,30 @@ function atomicFishing()
 		context.strokeStyle = "rgb( 255, 255, 255 )";
 		context.stroke();
 		context.closePath();
+		drawLaser(data.atomTube.x,data.atomTube.height-data.lazerOffsetBottom,data.atomTube.width,3);
+		
 	}
+	
+	function drawLaser( x, y, width, numInverts )
+	{
+		var variance = Math.random()*5;
+		context.beginPath();
+		context.moveTo( x, y );
+		//for( i = 0; i < numInverts; i++ )
+		//{
+		//	context.quadraticCurveTo( x + ( i * width / numInverts * 2 ), y+variance, x + ( i+1 * width / numInverts * 2 ), y );
+		//	context.stroke();
+		//}
+		context.strokeStyle = "rgb( 255, 255, 0 )";
+		context.lineWidth = 4;
+		context.quadraticCurveTo( x + ( 1 * width / 6 ), y+variance, x + ( 2 * width / 6 ), y );
+		context.stroke();
+		context.quadraticCurveTo( x + ( 3 * width / 6 ), y-variance, x + ( 4 * width / 6 ), y );
+		context.stroke();
+		context.quadraticCurveTo( x + ( 5 * width / 6 ), y+variance, x + ( 6 * width / 6 ), y );
+		context.stroke();
+	} // end Area()
+		
 
 	// Draw an Atom
 	function drawAtom( atom )
@@ -122,8 +148,11 @@ function atomicFishing()
 	// Create and draw a frame
 	function gameLoop()
 	{
-		update();
-		render();
+		if( data.running )
+		{
+			update();
+			render();
+		}
 	} // end gameLoop()
 
 
@@ -134,48 +163,42 @@ function atomicFishing()
 		{
 			atom = data.atoms[i];					// find height
 			
-			if( atom.y < HEIGHT-25 )						// if bubbling downwards
+			if( atom.y < HEIGHT-data.lazerOffsetBottom-20 )				// if bubbling downwards
 			{
-				atom.y += 5;				// keep bubbling
-				gripX = data.atomChain[data.atomChain.length-1].x;
-				gripY = data.atomChain[data.atomChain.length-1].y;
-				//if( gripX > (atom.x - atom.radius) && 
+				atom.y += 3;						// keep bubbling
+				// grabing	//	 data.atomChain.push( data.atoms.pop() );
 			}
 			else									// if getting close to bottom
 				data.atoms.splice( i, 1 );			// remove atom from memory
 			
 		}
 		timeDiff = new Date().getTime() - data.atoms[data.atoms.length - 1].timeCreated;
-		if( timeDiff > 750 )
-			data.atoms[data.atoms.length] = new Atom( String.fromCharCode(Math.floor( Math.random() * 26 ) + 65 ), data.atomTube.x + 20 + Math.floor( Math.random() * (data.atomTube.width-40) ), -20, Math.floor(Math.random()*12)+8 );
+		if( timeDiff > 750 ){
+		
+			data.atoms[data.atoms.length] = new Atom( 			// create another atom!
+					String.fromCharCode(Math.floor( Math.random() * 26 ) + 65 ), 
+					data.atomTube.x + 20 + Math.floor( Math.random() * (data.atomTube.width-40) ), 
+					-20, 
+					Math.floor(Math.random()*12)+8 );
+		}
 	} // end update()
 
 
 	// Render a scene
 	function render()
 	{
-		if( data.running )
+		drawBackground();
+		drawFrame();
+		
+		for( i = 0; i < data.atoms.length; i++ )
 		{
-			drawBackground();
-			drawFrame();
-			
-			for( i = 0; i < data.atoms.length; i++ )
-			{
-				drawAtom( data.atoms[i] );
-			}
-			
-			// draw the collected chain
-			for( i = 0; i < data.atomChain.length; i++ )
-			{
-				drawAtom( data.atomChain[i] );
-			}
+			drawAtom( data.atoms[i] );
+		}
+		
+		// draw the collected chain
+		for( i = 0; i < data.atomChain.length; i++ )
+		{
+			drawAtom( data.atomChain[i] );
 		}
 	} // end render()
 } // end AtomicFishing()
-
-
-
-
-
-
-
