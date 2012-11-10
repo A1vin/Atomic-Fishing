@@ -46,7 +46,7 @@ function atomicFishing() {
 			yDist *= -1;
 		}
 
-		return (Math.sqrt(Math.pow(xDist, 2) * Math.pow(yDist, 2)));
+		return (Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2)));
 	}
 
 	function collisionCheck(currentAtom) {
@@ -69,15 +69,16 @@ function atomicFishing() {
 		return 0;
 	}
 
-	function grabAtom() // the last atom in chain will grab an atom if it's
-						// close to it
+	function grabAtom() // the last atom in chain will grab a loose atom if it's close to it
 	{
-
 		for ( var i = 0; i < data.atoms.length; i++) {
-			if (getDistance(data.atoms[i],
-					data.atomChain[data.atomChain.length - 1]) <= data.atoms[i].radius
-					+ data.atomChain[data.atomChain.length - 1].radius)
-				data.atomChain.push(data.atoms.slice(i, 1));
+			var distance = getDistance(data.atoms[i], data.atomChain[data.atomChain.length - 1]);
+			var limit = data.atoms[i].radius + data.atomChain[data.atomChain.length - 1].radius;
+			if ( distance <= limit )				
+			{
+				looseAtom = data.atoms.splice(i, 1);
+				data.atomChain.push( looseAtom[0] );
+			}
 		}
 	}
 
@@ -217,7 +218,7 @@ function atomicFishing() {
 		context.fillStyle = 'rgb(0, 0, 0)';
 		context.font = "normal " + atom.radius * 1.4 + "px Verdana";
 	//	alert(atom.name[1]);
-		if (atom.name[1]) {
+		if (atom.name.lengt == 2) {
 			context.fillText(atom.name, atom.x - (atom.radius * 9 / 10), atom.y
 					+ (atom.radius / 2));
 		} else {
@@ -246,26 +247,28 @@ function atomicFishing() {
 		grabAtom();
 		for (i = 0; i < data.atoms.length; i++) // for every atom
 		{
-			atom = data.atoms[i]; // find height
+			atom = data.atoms[i]; // get this atom
+			atomTubeMinLimitX = data.atomTube.x + atom.radius;
 
-			if (atom.x < data.atomTube.x + atom.radius) {
-				atom.x = data.atomTube.x + atom.radius;
-				atom.velX = -atom.velX;
+			if ( atom.x < atomTubeMinLimitX ) {
+				atom.x = atomTubeMinLimitX;
+				atom.velX -= atom.velX;
 			}
-			if (atom.x > data.atomTube.x + data.atomTube.width - atom.radius) {
-				atom.x = data.atomTube.x + data.atomTube.width - atom.radius;
-				atom.velX = -atom.velX;
+			
+			atomTubeMaxLimitX = data.atomTube.x + data.atomTube.width - atom.radius;
+			if (atom.x > atomTubeMaxLimitX) {
+				atom.x = atomTubeMaxLimitX;
+				atom.velX -= atom.velX;
 			}
 
-			if (atom.y < HEIGHT - data.lazerOffsetBottom - 20) // if bubbling
-																// downwards
+			if (atom.y < HEIGHT - data.lazerOffsetBottom - 20) // if bubbling downwards
 			{
 				atom.y += 3; // keep bubbling
 				// grabing // data.atomChain.push( data.atoms.pop() );
-			} else
+			} else {
 				// if getting close to bottom
 				data.atoms.splice(i, 1); // remove atom from memory
-
+			}
 		}
 		timeDiff = new Date().getTime()
 				- data.atoms[data.atoms.length - 1].timeCreated;
