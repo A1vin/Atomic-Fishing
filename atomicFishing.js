@@ -239,11 +239,26 @@ function atomicFishing() {
 	function update() {
 		var atomName;
 		var atomMass;
-		//grabAtom();
-		for (i = 0; i < data.atoms.length; i++) // for every atom
+		
+		// For every free atom
+		for (i = 0; i < data.atoms.length; i++)
 		{
-			atom = data.atoms[i]; // get this atom
-			
+			updateAtomsCondition( data.atoms[i] );			// do test-conditions on an atom	
+		}
+		
+		// For every collected atom in the chain
+		for( i = 0; i < data.atomChain.length; i++ )
+		{
+			updateAtomChain();								// do test-conditions on atoms in the chain
+		}
+		
+		// Eventually spawning of new atoms
+		atomSpawn();										// conditional spawn of atom
+		
+	} // end update()
+	
+	function updateAtomsCondition( atom )			// in update() do here the testings on an atom
+	{
 			atomTubeMinLimitX = data.atomTube.x + atom.radius;
 			if ( atom.x < atomTubeMinLimitX ) {
 				atom.x = atomTubeMinLimitX;
@@ -255,7 +270,7 @@ function atomicFishing() {
 				atom.x = atomTubeMaxLimitX;
 				atom.velX -= atom.velX;
 			}
-
+			
 			atomTubeMaxLimitY = data.atomTube.y + data.atomTube.height - data.lazerOffsetBottom - data.atomMaxRadius;
 			if (atom.y < atomTubeMaxLimitY) // if bubbling downwards
 			{
@@ -272,8 +287,15 @@ function atomicFishing() {
 			} else {						// if getting close to bottom
 				data.atoms.splice(i, 1);	// remove atom from memory
 			}
-		}
-		
+	} // end updateAtomsCondition()
+	
+	function updateAtomChain()
+	{
+		//
+	}
+	
+	function atomSpawn()					// Spawn a new atom if conditions are met
+	{
 		durationSinceCreation = new Date().getTime() - data.atoms[data.atoms.length - 1].timeCreated;
 		if (durationSinceCreation > 750) {
 			var atomIndex = Math.floor( (Math.random() * atomListName.length) );
@@ -287,7 +309,7 @@ function atomicFishing() {
 													-atomMass,	// - radius as y (spawn right before atomTube)
 													atomMass);	// radius
 		}
-	} // end update()
+	}
 
 	// Render a scene
 	function render() {
