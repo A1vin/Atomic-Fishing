@@ -213,7 +213,7 @@ function atomicFishing() {
 		context.fillStyle = 'rgb(0, 0, 0)';
 		context.font = "normal " + atom.radius * 1.4 + "px Verdana";
 	//	alert(atom.name[1]);
-		if (atom.name.lengt == 2) {
+		if (atom.name.length == 2) {
 			context.fillText(atom.name, atom.x - (atom.radius * 9 / 10), atom.y
 					+ (atom.radius / 2));
 		} else {
@@ -247,10 +247,7 @@ function atomicFishing() {
 		}
 		
 		// For every collected atom in the chain
-		for( i = 0; i < data.atomChain.length; i++ )
-		{
-			updateAtomChain();								// do test-conditions on atoms in the chain
-		}
+		updateAtomChain();								// do test-conditions on atoms in the chain
 		
 		// Eventually spawning of new atoms
 		atomSpawn();										// conditional spawn of atom
@@ -291,9 +288,10 @@ function atomicFishing() {
 	
 	function updateAtomChain()
 	{
-	/*	for (var g = 1; g < data.atomChain.length;g++){
-			data.atomChain[g].x - data.atomChain[g-1].x;
-		}*/
+		for (var g = 1; g < data.atomChain.length;g++){
+			data.atomChain[g].velX -= (data.atomChain[g].x - data.atomChain[g-1].x);
+			data.atomChain[g].velY -= (data.atomChain[g].y - data.atomChain[g-1].y);
+		}
 	}
 	
 	function atomSpawn()					// Spawn a new atom if conditions are met
