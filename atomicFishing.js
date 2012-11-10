@@ -1,0 +1,4 @@
+function atomicFishing()
+{
+	alert( "hei" );
+}
