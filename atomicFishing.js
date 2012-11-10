@@ -7,6 +7,21 @@ function atomicFishing()
 	var canvas = document.getElementById("gameFrame");
 	var context = canvas.getContext("2d");
 	
+	var atomListMass = [
+	1,4,12,
+	14,16,19,
+	23,24,26,
+	28,30,32,
+	35,40,40
+	];
+	var atomListName = [
+	"H", "He", "C",
+	"N", "O", "F",
+	"Na","Mg","Al",
+	"Si","P", "S",
+	"Cl","Ar", "Ca"
+	];
+	
 	init();
 	
 	var data = new Data();
@@ -21,7 +36,7 @@ function atomicFishing()
 		if( data.pinX > data.atomChain[0].x - 10 && data.pinX < data.atomChain[0].x + 10 &&
 			data.pinY > data.atomChain[0].y - 10 && data.pinY < data.atomChain[0].y + 10 )
 			data.directChain = true;			// if clicked in or around 'picker', control = true
-	}
+	};
 
 	function moveChain(e)
 	{
@@ -35,7 +50,7 @@ function atomicFishing()
 	canvas.onmouseup = function( e )
 	{
 		data.directChain = false;
-	}
+	};
 	
 	function init()											// initialize canvas
 	{
@@ -76,9 +91,9 @@ function atomicFishing()
 		this.y = y;									// position y in space
 		this.radius = radius;							// radius in pixels
 		this.timeCreated = new Date().getTime();		// When this atom was 'created'
-		this.color = 'rgb('	+Math.floor(Math.random()*255)+', '
-							+Math.floor(Math.random()*255)+', '
-							+Math.floor(Math.random()*255)+')';
+		this.color = 'rgb('	+Math.floor(radius*9)+', '
+							+Math.floor(255-(radius*9))+', '
+							+Math.floor((255*(radius))%255)+')';
 		this.velX = 0;									// velocity sideways (magnetics)
 		this.falling = true;							// Whether the atom is falling or not
 	} // end Atom()
@@ -132,7 +147,7 @@ function atomicFishing()
 		//	context.quadraticCurveTo( x + ( i * width / numInverts * 2 ), y+variance, x + ( i+1 * width / numInverts * 2 ), y );
 		//	context.stroke();
 		//}
-		context.strokeStyle = "rgb( 255, 255, 0 )";
+		context.strokeStyle = "rgb( 255, 0, 0 )";
 		context.lineWidth = 4;
 		context.quadraticCurveTo( x + ( 1 * width / 6 ), y+variance, x + ( 2 * width / 6 ), y );
 		context.stroke();
@@ -154,7 +169,15 @@ function atomicFishing()
 		context.fill();
 		context.fillStyle = 'rgb(0, 0, 0)';
 		context.font = "normal "+atom.radius*1.4+"px Verdana";
-		context.fillText(atom.name, atom.x - (atom.radius/2), atom.y+(atom.radius/2));
+		if(atom.name.lenght<2){
+		context.fillText(atom.name,
+						atom.x - (atom.radius*4/5),
+						atom.y+(atom.radius/2));
+		}else{
+		context.fillText(atom.name,
+						atom.x - (atom.radius/2),
+						atom.y+(atom.radius/2));
+		}
 		context.closePath();
 	} // end drawAtom()
 
@@ -172,6 +195,8 @@ function atomicFishing()
 	// Update data according to last screen
 	function update()
 	{
+		var atomName;
+		var atomMass;
 		for( i = 0; i < data.atoms.length; i++ )	// for every atom
 		{
 			atom = data.atoms[i];					// find height
@@ -187,15 +212,16 @@ function atomicFishing()
 		}
 		timeDiff = new Date().getTime() - data.atoms[data.atoms.length - 1].timeCreated;
 		if( timeDiff > 750 ){
-		
+			var atomIndex = (Math.floor( (Math.random() *  atomListName.length)) );
+			atomName = atomListName[atomIndex];
+			atomMass = atomListMass[atomIndex]/3 + 15;
 			data.atoms[data.atoms.length] = new Atom( 			// create another atom!
-					String.fromCharCode(Math.floor( Math.random() * 26 ) + 65 ), 
+					atomName,
 					data.atomTube.x + 20 + Math.floor( Math.random() * (data.atomTube.width-40) ), 
 					-20, 
-					Math.floor(Math.random()*12)+8 );
+					atomMass );
 		}
 	} // end update()
-
 
 	// Render a scene
 	function render()
@@ -213,5 +239,5 @@ function atomicFishing()
 		{
 			drawAtom( data.atomChain[i] );
 		}
-	} // end render()
+	} // end render() 
 } // end AtomicFishing()
