@@ -233,10 +233,7 @@ function atomicFishing() {
 		}
 		
 		// For every collected atom in the chain
-		for( i = 0; i < data.atomChain.length; i++ )
-		{
-			updateAtomChain();								// do test-conditions on atoms in the chain
-		}
+		updateAtomChain();								// do test-conditions on atoms in the chain
 		
 		// Eventually spawning of new atoms
 		atomSpawn();										// conditional spawn of atom
@@ -277,7 +274,10 @@ function atomicFishing() {
 	
 	function updateAtomChain()
 	{
-		//
+		for (var g = 1; g < data.atomChain.length;g++){
+			data.atomChain[g].velX -= (data.atomChain[g].x - data.atomChain[g-1].x);
+			data.atomChain[g].velY -= (data.atomChain[g].y - data.atomChain[g-1].y);
+		}
 	}
 	
 	function atomSpawn()					// Spawn a new atom if conditions are met
@@ -288,7 +288,7 @@ function atomicFishing() {
 			atomName = atomListName[atomIndex];				// name: like C (carbon), H (hydrogen)
 			atomMass = atomListMass[atomIndex] / 3 + 15;	// equivalent to radius
 			atomX = data.atomTube.x	+ atomMass 
-						+ Math.floor( Math.random() * (data.atomTube.width - 2 * atomMass) )
+						+ Math.floor( Math.random() * (data.atomTube.width - 2 * atomMass) );
 			data.atoms[data.atoms.length] = new Atom( 		// create another atom!
 													atomName,
 													atomX, 
