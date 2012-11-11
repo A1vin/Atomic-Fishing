@@ -32,7 +32,7 @@ function atomicFishing() {
 		this.atomChain = [ new Atom(" ", WIDTH / 2, 200, 10) ]; // collected chain starting 
 															// with a collector
 		this.atomTube = new Area(WIDTH/4, 0, 400, HEIGHT); 		// Tube where the atoms is 'raining'
-		this.box = new Area(600, 0, 120, 200);				// Molecule-frame
+		this.box = new Area(600, 0, 120, 200);
 		this.running = true; 								// Game running?
 		this.directChain = false; 							// Chain being controlled?
 		this.atomMaxRadius = 20;							// maximum radius in an atom
@@ -153,6 +153,7 @@ function atomicFishing() {
 		context.lineTo(data.atomTube.x, data.atomTube.height);
 		context.strokeStyle = "rgb( 255, 255, 255 )";
 		context.stroke();
+
 		context.moveTo(data.atomTube.x + data.atomTube.width, data.atomTube.y + data.atomTube.height);
 		if( data.validAnswer )
 		{
@@ -164,6 +165,7 @@ function atomicFishing() {
 			context.lineTo( data.atomTube.x + data.atomTube.width, 
 							data.atomTube.y);
 		}
+
 		context.strokeStyle = "rgb( 255, 255, 255 )";
 		context.stroke();
 		context.closePath();
@@ -380,14 +382,11 @@ function atomicFishing() {
 		// For each molecule
 		for( i = 0; i < molecules.length; i++ )
 		{
-		///	if( answer.length == molecules[i].combination.lenght )
-		//	{
-				var solution = molecules[i].combination.sort()
-				if( solution.toString() == answer.toString() ) {			// problem: molecules[i].combination is a string, not an array
-					//alert( "congrats!" );
-					data.validAnswer = true;
-				}
-			//}
+			var solution = molecules[i].combination.sort()
+			if( solution.toString() == answer.toString() ) {			// problem: molecules[i].combination is a string, not an array
+				alert( "congrats!" );
+				data.validAnswer = true;
+			}
 		} // end for( each molecule )
 		//alert( answer );
 	} // end validate()
