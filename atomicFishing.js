@@ -8,8 +8,8 @@ function atomicFishing() {
 
 	var atomListMass = [ 1, 4, 12, 14, 16, 19, 23, 24, 26, 28, 30, 32, 35, 40, 40 ];
 	var atomListName = [ "H", "He", "C", "N", "O", "F", "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar", "Ca" ];
-	var objectiveList = [	"H2O", "HHO", "H2O.jpg", 
-							"CH4", "HHHHC", "CH4.jpg" ];
+	var objectiveList = [	"H2O", "H H O", "H2O.png", 
+							"CH4", "H H H H C", "CH4.png" ];
 	
 	var molecules = [];
 
@@ -23,6 +23,22 @@ function atomicFishing() {
 	// Watch for mouse movement to move chain / control game
 	canvas.addEventListener("mousemove", moveChain, false);
 	
+
+	// 'Object' that holds the data in the game
+	function Data() {
+		//this.collection = new Array[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+		this.atoms = [ new Atom("C", WIDTH / 2, -20, 10) ]; //name,x,y,radius create array with
+															// atoms (starts with one atom in it)
+		this.atomChain = [ new Atom(" ", WIDTH / 2, 200, 10) ]; // collected chain starting 
+															// with a collector
+		this.atomTube = new Area(WIDTH/4, 0, 400, HEIGHT); 		// Tube where the atoms is 'raining'
+		this.box = new Area(10, 10, 120, 120);				// Molecule-frame
+		this.running = true; 								// Game running?
+		this.directChain = false; 							// Chain being controlled?
+		this.atomMaxRadius = 20;							// maximum radius in an atom
+		this.lazerOffsetBottom = 40; 						// distance between bottom and the lazer
+		this.validAnswer = false;
+	} // end Data();
 
 	function getDistance(atomOne, atomTwo) {
 		var xDist, yDist;
@@ -94,21 +110,6 @@ function atomicFishing() {
 		context.drawImage(img_background, 0, 0);
 	} // end drawBackground()
 
-	// 'Object' that holds the data in the game
-	function Data() {
-		//this.collection = new Array[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-		this.atoms = [ new Atom("C", WIDTH / 2, -20, 10) ]; //name,x,y,radius create array with
-															// atoms (starts with one atom in it)
-		this.atomChain = [ new Atom(" ", WIDTH / 2, 200, 10) ]; // collected chain starting 
-															// with a collector
-		this.atomTube = new Area(WIDTH/4, 0, 400, HEIGHT); 		// Tube where the atoms is 'raining'
-		this.box = new Area(10, 10, 120, 120);				// Molecule-frame
-		this.running = true; 								// Game running?
-		this.directChain = false; 							// Chain being controlled?
-		this.atomMaxRadius = 20;							// maximum radius in an atom
-		this.lazerOffsetBottom = 40; 						// distance between bottom and the lazer
-	} // end Data();
-
 	// 'Object' that defines an Atom
 	function Atom(type, x, y, radius) {
 		this.name = type; // name of atom (abbreviation)
@@ -129,7 +130,9 @@ function atomicFishing() {
 	function Molecule( name, combination, source )
 	{
 		this.name = name;									// the name of the molecule
-		this.combination = combination;						// the right combination of atoms
+		//split( combination );
+		this.combination = combination.split(" ");
+		//this.combination = combination;						// the right combination of atoms
 		this.picture = new Image();							// image to show how it looks
 		this.picture.src = source;							//	- the source of that image
 	}
@@ -160,7 +163,8 @@ function atomicFishing() {
 					data.atomTube.height - data.lazerOffsetBottom,
 					data.atomTube.width,
 					3);
-		drawBox();
+					
+		if( data.validAnswer ) drawBox();
 		
 		for( i = 0; i < molecules.length; i++ )
 		{
@@ -224,7 +228,7 @@ function atomicFishing() {
 	} // end drawAtom()
 
 	function drawMolecule( molecule, position ) {
-		context.drawImage( molecule.picture, 40, position * 150 + 20 );
+		context.drawImage( molecule.picture, 20, position * 160 + 20 );
 	}
 
 	// Create and draw a frame
@@ -356,8 +360,26 @@ function atomicFishing() {
 	// Validate answer in atomChain against possible solutions
 	function validate()
 	{
+		var answer = [];								// An empty array to fill with the collected answer
+		for( i = 1; i < data.atomChain.length; i++)		// atomChain[0] is the collector. That could not be compared!
+		{
+			answer.push( data.atomChain[i].name );
+		}
+		answer.sort();
 		
-	}
+		data.validAnswer = false;						// Answer not valid untill proven valid
+		
+		// For each molecule
+		for( i = 0; i < molecules.length; i++ )
+		{
+			var solution = molecules[i].combination.sort()
+			if( solution.toString() == answer.toString() ) {			// problem: molecules[i].combination is a string, not an array
+				alert( "congrats!" );
+				data.validAnswer = true;
+			}
+		} // end for( each molecule )
+		//alert( answer );
+	} // end validate()
 	
 	// Render a scene
 	function render() {
