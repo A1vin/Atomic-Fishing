@@ -6,8 +6,6 @@ function atomicFishing() {
 	var canvas = document.getElementById("gameFrame");
 	var context = canvas.getContext("2d");
 
-	var points = 0;
-	var atomCollection = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 	var atomListMass = [ 1, 4, 12, 14, 16, 19, 23, 24, 26, 28, 30, 32, 35, 40,
 			40 ];
 	var atomListName = [ "H", "He", "C", "N", "O", "F", "Na", "Mg", "Al", "Si",
@@ -16,25 +14,16 @@ function atomicFishing() {
 	init();
 
 	var data = new Data();
-
-	setInterval(function() {
-		gameLoop();
-	}, 50); // For each 17 ms, start up gameLoop (if finished from last time)
+	
+	// For each 50 ms, start up gameLoop (if finished from last time)
+	setInterval(function() { gameLoop(); }, 50);
+	
+	// Watch for mouse movement to control game
 	canvas.addEventListener("mousemove", moveChain, false);// Move chain on
 															// mouse movement
 															// when control is
 															// activated
-
-	canvas.onmousedown = function(e) {
-		var pinX = e.pageX - this.offsetLeft;
-		var pinY = e.pageY - this.offsetTop;
-		if (pinX > data.atomChain[0].x - 10
-				&& pinX < data.atomChain[0].x + 10
-				&& pinY > data.atomChain[0].y - 10
-				&& pinY < data.atomChain[0].y + 10)
-			data.directChain = true; // if clicked in or around 'picker',
-										// control = true
-	};
+	//};
 
 	function getDistance(atomOne, atomTwo) {
 		var xDist, yDist;
@@ -49,7 +38,7 @@ function atomicFishing() {
 		}
 
 		return (Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2)));
-	}
+	} // end getDistance(..)
 
 	function collisionCheck(currentAtom) {
 		for ( var i = 0; i < data.atomChain.length; i++) {
@@ -62,14 +51,15 @@ function atomicFishing() {
 
 		for ( var i = 0; i < data.atoms.length; i++) {
 			if ((currentAtom - data.atomChain.length) != i) {
-				if (getDistance(tempAtom, data.atoms[i]) <= tempAtom.radius
-						+ data.atoms[i].radius)
+				if (getDistance(tempAtom, data.atoms[i]) 
+					<= 
+					tempAtom.radius + data.atoms[i].radius)
 					return (1 + i + data.atomChain.length);
 			}
 		}
 
 		return 0;
-	}
+	} // end getDistance(..)
 
 	function moveChain(e) {
 		// if( data.directChain )
@@ -101,16 +91,17 @@ function atomicFishing() {
 
 	// 'Object' that holds the data in the game
 	function Data() {
+		//this.collection = new Array[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 		this.atoms = [ new Atom("C", WIDTH / 2, -20, 10) ]; //name,x,y,radius create array with
 															// atoms (starts with one atom in it)
 		this.atomChain = [ new Atom(" ", WIDTH / 2, 200, 10) ]; // collected chain starting 
 															// with a collector
-		this.atomTube = new Area(200, 0, 400, HEIGHT); 		// Tube where the atoms is 'raining'
+		this.atomTube = new Area(WIDTH/4, 0, 400, HEIGHT); 		// Tube where the atoms is 'raining'
 		this.box = new Area(10, 10, 120, 120);				// Molecule-frame
 		this.running = true; 								// Game running?
 		this.directChain = false; 							// Chain being controlled?
 		this.atomMaxRadius = 20;							// maximum radius in an atom
-		this.lazerOffsetBottom = 40; // distance between bottom and the lazer
+		this.lazerOffsetBottom = 40; 						// distance between bottom and the lazer
 	} // end Data();
 
 	// 'Object' that defines an Atom
@@ -189,7 +180,7 @@ function atomicFishing() {
 									x + (6 * width / 6), 	y			);
 		context.stroke();
 		context.closePath();
-	} // end Area()
+	} // end drawLazer()
 
 	// Draw an Atom
 	function drawAtom(atom) {
@@ -292,7 +283,7 @@ function atomicFishing() {
 				atom.velY +=2;
 			}
 			
-			//data.atomChain[g].velX/(5*g);
+			// Air resistance change the degree of velocity
 			atom.velX -= atom.velX / 3;
 			atom.velY -= atom.velY / 3;
 
@@ -306,25 +297,19 @@ function atomicFishing() {
 					for( h = g; h < data.atomChain.length; h++ ) 
 					{
 						var releaseAtom = data.atomChain.splice(h,1);
+						releaseAtom.timeCreated = new Date().getTime();
 						data.atoms.push( releaseAtom[0] );
 					}
 				} // end if
 			} // end for
+				
 		} // end for( each atom )
-		
-		// calculate highest y-value for last atom
-		//// while the last atom is below, cut away that atom
-		//while( data.atomChain[ data.atomChain.length - 1 ].y > atomTubeMaxLimitY )
-		//{
-		//	data.atomChain.pop();
-		//}
-
 	} // end updateAtomChain()
-	
+		
 	function atomSpawn()					// Spawn a new atom if conditions are met
 	{
 		durationSinceCreation = new Date().getTime() - data.atoms[data.atoms.length - 1].timeCreated;
-		if (durationSinceCreation > 1750-points) {
+		if (durationSinceCreation > 750) {
 			var atomIndex = Math.floor( (Math.random() * atomListName.length) );
 			atomName = atomListName[atomIndex];				// name: like C (carbon), H (hydrogen)
 			atomMass = atomListMass[atomIndex] / 3 + 15;	// equivalent to radius
