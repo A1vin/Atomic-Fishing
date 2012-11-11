@@ -32,7 +32,7 @@ function atomicFishing() {
 		this.atomChain = [ new Atom(" ", WIDTH / 2, 200, 10) ]; // collected chain starting 
 															// with a collector
 		this.atomTube = new Area(WIDTH/4, 0, 400, HEIGHT); 		// Tube where the atoms is 'raining'
-		this.box = new Area(600, 0, 120, 200);
+		this.depot = new Area(600, 0, 120, 200);
 		this.running = true; 								// Game running?
 		this.directChain = false; 							// Chain being controlled?
 		this.atomMaxRadius = 20;							// maximum radius in an atom
@@ -157,8 +157,8 @@ function atomicFishing() {
 		context.moveTo(data.atomTube.x + data.atomTube.width, data.atomTube.y + data.atomTube.height);
 		if( data.validAnswer )
 		{
-			context.lineTo( data.box.x,
-							data.box.y + data.box.height );
+			context.lineTo( data.depot.x,
+							data.depot.y + data.depot.height );
 		}
 		else
 		{
@@ -174,7 +174,7 @@ function atomicFishing() {
 					data.atomTube.width,
 					3);
 					
-		if( data.validAnswer ) drawBox();
+		if( data.validAnswer ) drawDepot();
 		
 		for( i = 0; i < molecules.length; i++ )
 		{
@@ -182,14 +182,14 @@ function atomicFishing() {
 		}
 	}
 
-	function drawBox() {
+	function drawDepot() {
 		context.beginPath();
-		context.moveTo(data.box.x, data.box.y);
-		context.lineTo(data.box.x, data.box.y + data.box.height);
-		context.lineTo(data.box.x + data.box.width, data.box.y
-				+ data.box.height);
-		context.lineTo(data.box.x + data.box.width, data.box.y);
-		context.lineTo(data.box.x, data.box.y);
+		context.moveTo(data.depot.x, data.depot.y);
+		context.lineTo(data.depot.x, data.depot.y + data.depot.height);
+		context.lineTo(data.depot.x + data.depot.width, data.depot.y
+				+ data.depot.height);
+		context.lineTo(data.depot.x + data.depot.width, data.depot.y);
+		context.lineTo(data.depot.x, data.depot.y);
 		context.stroke();
 	}
 
@@ -314,7 +314,8 @@ function atomicFishing() {
 	function updateAtomChain()
 	{
 		atomTubeMaxLimitY = data.atomTube.y + data.atomTube.height - data.lazerOffsetBottom - data.atomMaxRadius;
-		for (var g = 1; g < data.atomChain.length;g++){	
+		for (var g = 1; g < data.atomChain.length;g++)
+		{	
 			
 			atom = data.atomChain[g];
 			if(atom.velX<10&&atom.velX>-5)
@@ -346,9 +347,30 @@ function atomicFishing() {
 					}
 				} // end if
 			} // end for
-				
+			
+			if( insideDepot( atom ) )
+			{
+				if( atom.x < (data.depot.x + (data.depot.width * 0.3) ) )
+				{
+					var ting = data.atomChain.splice(g,1);
+				}
+			}
+			
 		} // end for( each atom )
 	} // end updateAtomChain()
+		
+	function insideDepot( atom )
+	{
+		if( atom.x > data.depot.x &&
+			atom.x < (data.depot.x + data.depot.width) &&
+			atom.y > data.depot.y &&
+			atom.y < (data.depot.y + data.depot.height) )
+		{
+			return true;
+		} else {
+			return false;
+		}		
+	}
 		
 	function atomSpawn()					// Spawn a new atom if conditions are met
 	{
@@ -382,9 +404,9 @@ function atomicFishing() {
 		// For each molecule
 		for( i = 0; i < molecules.length; i++ )
 		{
-			var solution = molecules[i].combination.sort()
+			var solution = molecules[i].combination.sort();
 			if( solution.toString() == answer.toString() ) {			// problem: molecules[i].combination is a string, not an array
-				alert( "congrats!" );
+				//alert( "congrats!" );
 				data.validAnswer = true;
 			}
 		} // end for( each molecule )
