@@ -257,7 +257,8 @@ function atomicFishing() {
 			atomTubeMaxLimitY = data.atomTube.y + data.atomTube.height - data.lazerOffsetBottom - data.atomMaxRadius;
 			if (atom.y < atomTubeMaxLimitY) // if bubbling downwards
 			{
-				atom.y += atom.velY; 				// keep bubbling
+				atom.x += atom.velX; 				// keep bubbling
+				atom.y += atom.velY;
 				
 				var distance = getDistance(data.atoms[i], data.atomChain[data.atomChain.length - 1]);
 				var limit = data.atoms[i].radius + data.atomChain[data.atomChain.length - 1].radius;
@@ -274,11 +275,26 @@ function atomicFishing() {
 	
 	function updateAtomChain()
 	{
-		for (var g = 1; g < data.atomChain.length;g++){
-			data.atomChain[g].velX -= (data.atomChain[g].x - data.atomChain[g-1].x);
-			data.atomChain[g].velY -= (data.atomChain[g].y - data.atomChain[g-1].y);
+		for (var g = 1; g < data.atomChain.length;g++){	
+			
+			
+			if(data.atomChain[g].velX<10&&data.atomChain[g].velX>-10)
+			{
+				data.atomChain[g].velX -= (data.atomChain[g].x - data.atomChain[g-1].x) * 0.1;
+			}
+			if(data.atomChain[g].velY<10&&data.atomChain[g].velY>-10)
+			{
+				data.atomChain[g].velY -= (data.atomChain[g].y - data.atomChain[g-1].y) * 0.1;
+			}
+			
+			//data.atomChain[g].velX/(5*g);
+			data.atomChain[g].velX -= data.atomChain[g].velX / 6;
+			data.atomChain[g].velY -= data.atomChain[g].velY / 6;
+			
+			data.atomChain[g].x += data.atomChain[g].velX;
+			data.atomChain[g].y += data.atomChain[g].velY;
 		}
-	}
+	} // end updateAtomChain()
 	
 	function atomSpawn()					// Spawn a new atom if conditions are met
 	{
@@ -295,13 +311,14 @@ function atomicFishing() {
 													-atomMass,	// - radius as y (spawn right before atomTube)
 													atomMass);	// radius
 		}
-	}
+	} // end atomSpawn()
 
 	// Render a scene
 	function render() {
 		drawBackground();
 		drawFrame();
 
+		// Draw free Atoms
 		for (i = 0; i < data.atoms.length; i++) {
 			drawAtom(data.atoms[i]);
 		}
