@@ -7,7 +7,7 @@ function atomicFishing() {
 	var context = canvas.getContext("2d");
 
 	var atomListMass = [ 1, 4, 12, 14, 16, 19, 23, 24, 26, 28, 30, 32, 35, 40, 40 ];
-	var atomListName = [ "H", "He", "C", "N", "O", "F", "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar", "Ca" ];
+	var atomListName = [ "H", "He", "C", "N", "O" ]; //, "F", "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar", "Ca" ];
 	var objectiveList = [	"H2O", "H H O", "H2O.png", 
 							"CH4", "H H H H C", "CH4.png" ];
 	
@@ -27,12 +27,12 @@ function atomicFishing() {
 	// 'Object' that holds the data in the game
 	function Data() {
 		//this.collection = new Array[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-		this.atoms = [ new Atom("C", WIDTH / 2, -20, 10) ]; //name,x,y,radius create array with
+		this.atoms = [ new Atom( atomListName[2], WIDTH / 2, -20, (atomListMass[2]/3+15) ) ]; //name,x,y,radius create array with
 															// atoms (starts with one atom in it)
 		this.atomChain = [ new Atom(" ", WIDTH / 2, 200, 10) ]; // collected chain starting 
 															// with a collector
 		this.atomTube = new Area(WIDTH/4, 0, 400, HEIGHT); 		// Tube where the atoms is 'raining'
-		this.box = new Area(10, 10, 120, 120);				// Molecule-frame
+		this.box = new Area(600, 0, 120, 200);				// Molecule-frame
 		this.running = true; 								// Game running?
 		this.directChain = false; 							// Chain being controlled?
 		this.atomMaxRadius = 20;							// maximum radius in an atom
@@ -153,9 +153,17 @@ function atomicFishing() {
 		context.lineTo(data.atomTube.x, data.atomTube.height);
 		context.strokeStyle = "rgb( 255, 255, 255 )";
 		context.stroke();
-		context.moveTo(data.atomTube.x + data.atomTube.width, data.atomTube.y);
-		context.lineTo(data.atomTube.x + data.atomTube.width, data.atomTube.y
-				+ data.atomTube.height);
+		context.moveTo(data.atomTube.x + data.atomTube.width, data.atomTube.y + data.atomTube.height);
+		if( data.validAnswer )
+		{
+			context.lineTo( data.box.x,
+							data.box.y + data.box.height );
+		}
+		else
+		{
+			context.lineTo( data.atomTube.x + data.atomTube.width, 
+							data.atomTube.y);
+		}
 		context.strokeStyle = "rgb( 255, 255, 255 )";
 		context.stroke();
 		context.closePath();
@@ -228,7 +236,7 @@ function atomicFishing() {
 	} // end drawAtom()
 
 	function drawMolecule( molecule, position ) {
-		context.drawImage( molecule.picture, 20, position * 160 + 20 );
+		context.drawImage( molecule.picture, 20, position * 160 );
 	}
 
 	// Create and draw a frame
@@ -372,11 +380,14 @@ function atomicFishing() {
 		// For each molecule
 		for( i = 0; i < molecules.length; i++ )
 		{
-			var solution = molecules[i].combination.sort()
-			if( solution.toString() == answer.toString() ) {			// problem: molecules[i].combination is a string, not an array
-				alert( "congrats!" );
-				data.validAnswer = true;
-			}
+		///	if( answer.length == molecules[i].combination.lenght )
+		//	{
+				var solution = molecules[i].combination.sort()
+				if( solution.toString() == answer.toString() ) {			// problem: molecules[i].combination is a string, not an array
+					//alert( "congrats!" );
+					data.validAnswer = true;
+				}
+			//}
 		} // end for( each molecule )
 		//alert( answer );
 	} // end validate()
