@@ -278,22 +278,24 @@ function atomicFishing() {
 		for (var g = 1; g < data.atomChain.length;g++){	
 			
 			
-			if(data.atomChain[g].velX<10&&data.atomChain[g].velX>-10)
+			if(data.atomChain[g].velX<10&&data.atomChain[g].velX>-5)
 			{
 				data.atomChain[g].velX -= (data.atomChain[g].x - data.atomChain[g-1].x) * 0.1;
 			}
-			if(data.atomChain[g].velY<10&&data.atomChain[g].velY>-10)
+			if(data.atomChain[g].velY<10&&data.atomChain[g].velY>-5)
 			{
 				data.atomChain[g].velY -= (data.atomChain[g].y - data.atomChain[g-1].y) * 0.1;
+				data.atomChain[g].velY +=2;
 			}
 			
 			//data.atomChain[g].velX/(5*g);
-			data.atomChain[g].velX -= data.atomChain[g].velX / 6;
-			data.atomChain[g].velY -= data.atomChain[g].velY / 6;
-			
+			data.atomChain[g].velX -= data.atomChain[g].velX / 3;
+			data.atomChain[g].velY -= data.atomChain[g].velY / 3;
+
 			data.atomChain[g].x += data.atomChain[g].velX;
 			data.atomChain[g].y += data.atomChain[g].velY;
 		}
+
 	} // end updateAtomChain()
 	
 	function atomSpawn()					// Spawn a new atom if conditions are met
