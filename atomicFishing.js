@@ -99,7 +99,7 @@ function atomicFishing() {
 
 	// 'Object' that holds the data in the game
 	function Data() {
-		this.collection = new Array[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+		//this.collection = new Array[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 		this.atoms = [ new Atom("C", WIDTH / 2, -20, 10) ]; //name,x,y,radius create array with
 															// atoms (starts with one atom in it)
 		this.atomChain = [ new Atom(" ", WIDTH / 2, 200, 10) ]; // collected chain starting 
