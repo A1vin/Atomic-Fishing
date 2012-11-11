@@ -9,7 +9,8 @@ function atomicFishing() {
 	var atomListMass = [ 1, 4, 12, 14, 16, 19, 23, 24, 26, 28, 30, 32, 35, 40, 40 ];
 	var atomListName = [ "H", "He", "C", "N", "O" ]; //, "F", "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar", "Ca" ];
 	var objectiveList = [	"H2O", "H H O", "H2O.png", 
-							"CH4", "H H H H C", "CH4.png" ];
+							"CH4", "H H H H C", "CH4.png",
+							"C4H5N", "C C C C H H H H H N", "C4H5N.png"];
 	
 	var molecules = [];
 
@@ -37,7 +38,8 @@ function atomicFishing() {
 		this.directChain = false; 							// Chain being controlled?
 		this.atomMaxRadius = 20;							// maximum radius in an atom
 		this.lazerOffsetBottom = 40; 						// distance between bottom and the lazer
-		this.validAnswer = false;
+		this.validAnswer = false;							// true when collected atoms has a solution
+		this.atomScore = 0;									// players score!
 	} // end Data();
 
 	function getDistance(atomOne, atomTwo) {
@@ -176,10 +178,14 @@ function atomicFishing() {
 					
 		if( data.validAnswer ) drawDepot();
 		
+		// Draw molecules (tasks - picture at right side of atomTube)
 		for( i = 0; i < molecules.length; i++ )
 		{
 			drawMolecule( molecules[i], i );
 		}
+		
+		// Print the score!
+		context.fillText( data.atomScore, 20, HEIGHT-20 );
 	}
 
 	function drawDepot() {
@@ -350,9 +356,10 @@ function atomicFishing() {
 			
 			if( insideDepot( atom ) )
 			{
-				if( atom.x < (data.depot.x + (data.depot.width * 0.3) ) )
+				if( atom.x > (data.depot.x + (data.depot.width * 0.3) ) )
 				{
-					var ting = data.atomChain.splice(g,1);
+					var fulfilledAtom = data.atomChain.splice(g,1);				// Extract an atom from the finished molecule
+					data.atomScore += Math.floor( fulfilledAtom[0].radius );	// Update the score by the mass / value of the atom
 				}
 			}
 			
@@ -399,7 +406,10 @@ function atomicFishing() {
 		}
 		answer.sort();
 		
-		data.validAnswer = false;						// Answer not valid untill proven valid
+		if( !insideDepot( data.atomChain[0] ) )
+		{
+			data.validAnswer = false;						// Answer not valid untill proven valid
+		}
 		
 		// For each molecule
 		for( i = 0; i < molecules.length; i++ )
