@@ -6,6 +6,8 @@ function atomicFishing() {
 	var canvas = document.getElementById("gameFrame");
 	var context = canvas.getContext("2d");
 
+	var points = 0;
+	var atomCollection = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 	var atomListMass = [ 1, 4, 12, 14, 16, 19, 23, 24, 26, 28, 30, 32, 35, 40,
 			40 ];
 	var atomListName = [ "H", "He", "C", "N", "O", "F", "Na", "Mg", "Al", "Si",
@@ -99,7 +101,6 @@ function atomicFishing() {
 
 	// 'Object' that holds the data in the game
 	function Data() {
-		//this.collection = new Array[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 		this.atoms = [ new Atom("C", WIDTH / 2, -20, 10) ]; //name,x,y,radius create array with
 															// atoms (starts with one atom in it)
 		this.atomChain = [ new Atom(" ", WIDTH / 2, 200, 10) ]; // collected chain starting 
@@ -302,7 +303,7 @@ function atomicFishing() {
 	function atomSpawn()					// Spawn a new atom if conditions are met
 	{
 		durationSinceCreation = new Date().getTime() - data.atoms[data.atoms.length - 1].timeCreated;
-		if (durationSinceCreation > 750) {
+		if (durationSinceCreation > 1750-points) {
 			var atomIndex = Math.floor( (Math.random() * atomListName.length) );
 			atomName = atomListName[atomIndex];				// name: like C (carbon), H (hydrogen)
 			atomMass = atomListMass[atomIndex] / 3 + 15;	// equivalent to radius
