@@ -6,10 +6,12 @@ function atomicFishing() {
 	var canvas = document.getElementById("gameFrame");
 	var context = canvas.getContext("2d");
 
-	var atomListMass = [ 1, 4, 12, 14, 16, 19, 23, 24, 26, 28, 30, 32, 35, 40,
-			40 ];
-	var atomListName = [ "H", "He", "C", "N", "O", "F", "Na", "Mg", "Al", "Si",
-			"P", "S", "Cl", "Ar", "Ca" ];
+	var atomListMass = [ 1, 4, 12, 14, 16, 19, 23, 24, 26, 28, 30, 32, 35, 40, 40 ];
+	var atomListName = [ "H", "He", "C", "N", "O", "F", "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar", "Ca" ];
+	var objectiveList = [	"H2O", "HHO", "H2O.jpg", 
+							"CH4", "HHHHC", "CH4.jpg" ];
+	
+	var molecules = [];
 
 	init();
 
@@ -18,12 +20,9 @@ function atomicFishing() {
 	// For each 50 ms, start up gameLoop (if finished from last time)
 	setInterval(function() { gameLoop(); }, 50);
 	
-	// Watch for mouse movement to control game
-	canvas.addEventListener("mousemove", moveChain, false);// Move chain on
-															// mouse movement
-															// when control is
-															// activated
-	//};
+	// Watch for mouse movement to move chain / control game
+	canvas.addEventListener("mousemove", moveChain, false);
+	
 
 	function getDistance(atomOne, atomTwo) {
 		var xDist, yDist;
@@ -80,6 +79,12 @@ function atomicFishing() {
 		canvas.style.border = "5px solid black";
 		// canvas.addEventListener('mousemove', mouseMove, false);
 		drawBackground(context);
+		
+		// load objectives / molecules
+		for( i = 0; i < objectiveList.length; i+=3 )
+		{
+			molecules[molecules.length] = new Molecule( objectiveList[i], objectiveList[i+1], objectiveList[i+2] );
+		}
 	} // end init()
 
 	// Draw background
@@ -119,6 +124,15 @@ function atomicFishing() {
 		this.velY = 3; 										// velocity downwards (gravity)
 		this.falling = true; // Whether the atom is falling or not
 	} // end Atom()
+	
+	// 'Object' that defines an objective - a goal for the player - a molecule
+	function Molecule( name, combination, source )
+	{
+		this.name = name;									// the name of the molecule
+		this.combination = combination;						// the right combination of atoms
+		this.picture = new Image();							// image to show how it looks
+		this.picture.src = source;							//	- the source of that image
+	}
 
 	// 'Object' that define an area
 	function Area(x, y, width, height) {
@@ -142,9 +156,16 @@ function atomicFishing() {
 		context.strokeStyle = "rgb( 255, 255, 255 )";
 		context.stroke();
 		context.closePath();
-		drawLaser(data.atomTube.x, data.atomTube.height
-				- data.lazerOffsetBottom, data.atomTube.width, 3);
+		drawLaser(	data.atomTube.x, 
+					data.atomTube.height - data.lazerOffsetBottom,
+					data.atomTube.width,
+					3);
 		drawBox();
+		
+		for( i = 0; i < molecules.length; i++ )
+		{
+			drawMolecule( molecules[i], i );
+		}
 	}
 
 	function drawBox() {
@@ -202,8 +223,8 @@ function atomicFishing() {
 		context.closePath();
 	} // end drawAtom()
 
-	function drawMolecule() {
-
+	function drawMolecule( molecule, position ) {
+		context.drawImage( molecule.picture, 40, position * 150 + 20 );
 	}
 
 	// Create and draw a frame
@@ -226,10 +247,13 @@ function atomicFishing() {
 		}
 		
 		// For every collected atom in the chain
-		updateAtomChain();								// do test-conditions on atoms in the chain
+		updateAtomChain();									// do test-conditions on atoms in the chain
 		
 		// Eventually spawning of new atoms
 		atomSpawn();										// conditional spawn of atom
+		
+		// See if the collected answer is a valid solution
+		validate();
 		
 	} // end update()
 	
@@ -329,6 +353,12 @@ function atomicFishing() {
 		}
 	} // end atomSpawn()
 
+	// Validate answer in atomChain against possible solutions
+	function validate()
+	{
+		
+	}
+	
 	// Render a scene
 	function render() {
 		drawBackground();
