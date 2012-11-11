@@ -233,11 +233,17 @@ function atomicFishing() {
 		
 	} // end update()
 	
-	function updateAtomsCondition( atom )			// in update() do here the testings on an atom
+	function updateAtomsCondition( atom )			// in update() free atoms
 	{
 			atomTubeMaxLimitY = data.atomTube.y + data.atomTube.height - data.lazerOffsetBottom - data.atomMaxRadius;
 			if (atom.y < atomTubeMaxLimitY) // if bubbling downwards
 			{
+				
+				if(atom.velY<5)
+				{
+					atom.velY +=2;
+				}
+				
 				atom.x += atom.velX; 				// keep bubbling
 				atom.y += atom.velY;
 				
