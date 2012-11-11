@@ -51,24 +51,18 @@ function atomicFishing() {
 		return (Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2)));
 	}
 
-	function collisionCheck(currentAtom) {
-		for ( var i = 0; i < data.atomChain.length; i++) {
-			if (currentAtom != i) {
-				if (getDistance(tempAtom, data.atomChain[i]) <= tempAtom.radius
-						+ data.atomChain[i].radius)
-					return (1 + i);
-			}
-		}
-
-		for ( var i = 0; i < data.atoms.length; i++) {
-			if ((currentAtom - data.atomChain.length) != i) {
-				if (getDistance(tempAtom, data.atoms[i]) <= tempAtom.radius
-						+ data.atoms[i].radius)
-					return (1 + i + data.atomChain.length);
-			}
-		}
-
-		return 0;
+	function collisionCheck(atom, atomc) {
+		if (getDistance(atom,atomc) <= atom.radius + atomc.radius)
+		{
+			atom.velX = atom.velX - (atomc.x-atom.x)*1.03;
+			atom.velY = atom.velY - (atomc.y-atom.y)*1.03;
+			
+			atomc.velX = atomc.velX - (atom.x-atomc.x)*1.03;
+			atomc.velY = atomc.velY - (atom.y-atomc.y)*1.03;
+			return (1);
+		}	
+		return (0);
+		
 	}
 
 	function moveChain(e) {
@@ -231,7 +225,14 @@ function atomicFishing() {
 		// For every free atom
 		for (i = 0; i < data.atoms.length; i++)
 		{
-			updateAtomsCondition( data.atoms[i] );			// do test-conditions on an atom	
+			for (j = 1; j< data.atomChain.length;j++)
+			{
+				collisionCheck(data.atoms[i], data.atomChain[j]);
+				
+			}
+			
+			
+			updateAtomsCondition( data.atoms[i] ,i );			// do test-conditions on an atom	
 		}
 		
 		// For every collected atom in the chain
@@ -242,28 +243,22 @@ function atomicFishing() {
 		
 	} // end update()
 	
-	function updateAtomsCondition( atom )			// in update() do here the testings on an atom
+	function updateAtomsCondition( atom , i)			// in update() free atoms
 	{
-			atomTubeMinLimitX = data.atomTube.x + atom.radius;
-			if ( atom.x < atomTubeMinLimitX ) {
-				atom.x = atomTubeMinLimitX;
-				atom.velX -= atom.velX;
-			}
-			
-			atomTubeMaxLimitX = data.atomTube.x + data.atomTube.width - atom.radius;
-			if (atom.x > atomTubeMaxLimitX) {
-				atom.x = atomTubeMaxLimitX;
-				atom.velX -= atom.velX;
-			}
-			
 			atomTubeMaxLimitY = data.atomTube.y + data.atomTube.height - data.lazerOffsetBottom - data.atomMaxRadius;
 			if (atom.y < atomTubeMaxLimitY) // if bubbling downwards
 			{
+				
+				if(atom.velY<5)
+				{
+					atom.velY +=2;
+				}
+				
 				atom.x += atom.velX; 				// keep bubbling
 				atom.y += atom.velY;
 				
-				var distance = getDistance(data.atoms[i], data.atomChain[data.atomChain.length - 1]);
-				var limit = data.atoms[i].radius + data.atomChain[data.atomChain.length - 1].radius;
+				var distance = getDistance(atom, data.atomChain[data.atomChain.length - 1]);
+				var limit = atom.radius + data.atomChain[data.atomChain.length - 1].radius;
 				if ( distance <= limit )				
 				{
 					looseAtom = data.atoms.splice(i, 1);
@@ -273,30 +268,63 @@ function atomicFishing() {
 			} else {						// if getting close to bottom
 				data.atoms.splice(i, 1);	// remove atom from memory
 			}
+			
+			atomTubeMinLimitX = data.atomTube.x + atom.radius;
+			if ( atom.x < atomTubeMinLimitX ) {
+				atom.x = atomTubeMinLimitX+2;
+				atom.velX = -(atom.velX * 0.5);
+			}
+			
+			atomTubeMaxLimitX = data.atomTube.x + data.atomTube.width - atom.radius;
+			if (atom.x > atomTubeMaxLimitX) {
+				atom.x = atomTubeMaxLimitX-2;
+				atom.velX = -(atom.velX * 0.5);
+			}
+			
 	} // end updateAtomsCondition()
 	
 	function updateAtomChain()
 	{
+		atomTubeMaxLimitY = data.atomTube.y + data.atomTube.height - data.lazerOffsetBottom - data.atomMaxRadius;
 		for (var g = 1; g < data.atomChain.length;g++){	
 			
-			
-			if(data.atomChain[g].velX<10&&data.atomChain[g].velX>-5)
+			atom = data.atomChain[g];
+			if(atom.velX<10&&atom.velX>-5)
 			{
-				data.atomChain[g].velX -= (data.atomChain[g].x - data.atomChain[g-1].x) * 0.1;
+				atom.velX -= (atom.x - data.atomChain[g-1].x) * 0.1;
 			}
-			if(data.atomChain[g].velY<10&&data.atomChain[g].velY>-5)
+			if(atom.velY<10&&atom.velY>-5)
 			{
-				data.atomChain[g].velY -= (data.atomChain[g].y - data.atomChain[g-1].y) * 0.1;
-				data.atomChain[g].velY +=2;
+				atom.velY -= (atom.y - data.atomChain[g-1].y) * 0.1;
+				atom.velY +=2;
 			}
 			
 			//data.atomChain[g].velX/(5*g);
-			data.atomChain[g].velX -= data.atomChain[g].velX / 3;
-			data.atomChain[g].velY -= data.atomChain[g].velY / 3;
+			atom.velX -= atom.velX / 3;
+			atom.velY -= atom.velY / 3;
 
-			data.atomChain[g].x += data.atomChain[g].velX;
-			data.atomChain[g].y += data.atomChain[g].velY;
-		}
+			atom.x += atom.velX;
+			atom.y += atom.velY;
+			
+			if( atom.y > atomTubeMaxLimitY )
+			{
+				if( atom.name != " " )
+				{
+					for( h = g; h < data.atomChain.length; h++ ) 
+					{
+						var releaseAtom = data.atomChain.splice(h,1);
+						data.atoms.push( releaseAtom[0] );
+					}
+				} // end if
+			} // end for
+		} // end for( each atom )
+		
+		// calculate highest y-value for last atom
+		//// while the last atom is below, cut away that atom
+		//while( data.atomChain[ data.atomChain.length - 1 ].y > atomTubeMaxLimitY )
+		//{
+		//	data.atomChain.pop();
+		//}
 
 	} // end updateAtomChain()
 	
